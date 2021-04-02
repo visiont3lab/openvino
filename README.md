@@ -135,6 +135,7 @@ cd /root/omz_demos_build/intel64/Release
 ```
 # https://docs.openvinotoolkit.org/latest/omz_demos_multi_channel_human_pose_estimation_demo_cpp.html
 # https://www.youtube.com/watch?v=2G6uSHPFP-Q
+cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
 python3 downloader.py --name  human-pose-estimation-0001 --output_dir /opt/intel/openvino_2021.3.394/ws/models
 
 cd /root/omz_demos_build/intel64/Release
@@ -151,8 +152,8 @@ cd /root/omz_demos_build/intel64/Release
 ## Pedestrian Tracker
 
 ```
-python3 downloader.py --print_all | grep rei
 cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
+python3 downloader.py --print_all | grep rei
 python3 downloader.py --name  person-detection-retail-0013 --output_dir /opt/intel/openvino_2021.3.394/ws/models
 python3 downloader.py --name  person-reidentification-retail-0277 --output_dir /opt/intel/openvino_2021.3.394/ws/models
 

@@ -1,4 +1,3 @@
-
 # OpenVino Docker setup for inference on NCS2
 
 ```

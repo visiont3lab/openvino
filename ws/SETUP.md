@@ -1,19 +1,13 @@
 
 # OpenVino Docker setup for inference on NCS2
 
-> The image is [visiont3lab/openvino-ubuntu18.04](https://hub.docker.com/repository/docker/visiont3lab/openvino-ubuntu18.04)
-
-## Get video
-
 ```
-# -- Get samples iot video (outside docker container)
-cd openvino/ws
-git clone https://github.com/intel-iot-devkit/sample-videos
-```
+# Explaination Website: https://docs.openvinotoolkit.org/latest/openvino_docs_install_guides_installing_openvino_docker_linux.html#use_docker_image_for_cpu
+# Dockerfile: https://github.com/openvinotoolkit/docker_ci/tree/master/dockerfiles
 
-## Run container
-
-```
+# We are intersted in Making Inference on Neural Compute stick 2 (NCS2) by using Plugin Myriad on Ubuntu 18.04
+# Dockerhub: https://hub.docker.com/r/openvino/ubuntu18_data_dev
+# docker run  --help  --> to see options
 xhost +local:docker && \
 docker run --rm --name openvino_ncs2_dev  -it \
         -u 0 \
@@ -29,12 +23,18 @@ docker run --rm --name openvino_ncs2_dev  -it \
         -v ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native:Z \
          visiont3lab/openvino-ubuntu18.04 \
         /bin/bash
+
+# visiont3lab/openvino-ubuntu18.04 --> compiled version
+# openvino/ubuntu18_data_dev:latest --> initial versione
 ```
 
-##  Demo apps
+* [Get Started Guide](https://docs.openvinotoolkit.org/latest/openvino_docs_get_started_get_started_linux.html)
+
+### Demo apps
 
 ```
-# -- Run inside docker container
+# Demo apps!! Do this inside docker
+apt update && apt install sudo && apt install libnotify-dev vim
 cd /deployment_tools/demo
 # ./<script_name> -d [CPU, GPU, MYRIAD, HDDL]
 ./demo_squeezenet_download_convert_run.sh -d MYRIAD   # CPU
@@ -43,12 +43,27 @@ cd /deployment_tools/demo
 ./demo_benchmark_app.sh -d MYRIAD
 ```
 
-##  [Demo Applications](https://docs.openvinotoolkit.org/latest/omz_demos.html)
-
-
-### Run human_pose_estimation_3d_demo
+### [Demo Applications](https://docs.openvinotoolkit.org/latest/omz_demos.html)
 
 ```
+# get samples iot video (outside docker container)
+cd open_vino/ws
+git clone https://github.com/intel-iot-devkit/sample-videos
+# inside docker container
+
+# --- Build demos c++/ python
+# https://docs.openvinotoolkit.org/latest/omz_demos.html
+# https://docs.openvinotoolkit.org/2021.2/omz_demos_README.html
+cd /opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/demos
+# --> Open ./build_demos.sh  and add change line 84 --> (cd "$build_dir" && cmake  -DENABLE_PYTHON=ON -DCMAKE_BUILD_TYPE=Release "${extra_cmake_opts[@]}" "$DEMOS_PATH")
+# add -DENABLE_PYTHON=ON
+# Build demo python
+https://community.intel.com/t5/Intel-Distribution-of-OpenVINO/New-3D-human-pose-estimation-demo/td-p/1183637
+./build_demo.sh
+## add to bashrc
+echo 'export PYTHONPATH=$PYTHONPATH:/root/omz_demos_build/intel64/Release/lib' >> $HOME/.bashrc
+
+# --- Run human_pose_estimation_3d_demo
 # human_pose_estimation_3d_demo https://docs.openvinotoolkit.org/latest/omz_models_model_human_pose_estimation_3d_0001.html
 # human_pose_estimation_3d_demo https://docs.openvinotoolkit.org/latest/omz_demos_human_pose_estimation_3d_demo_python.html
 # Dowload and convert model  https://docs.openvinotoolkit.org/latest/omz_tools_downloader.html
@@ -63,11 +78,9 @@ python3 human_pose_estimation_3d_demo.py \
     -m /opt/intel/openvino_2021.3.394/ws/models/public/human-pose-estimation-3d-0001/FP16/human-pose-estimation-3d-0001.xml \
     -i /opt/intel/openvino_2021.3.394/ws/sample-videos/face-demographics-walking.mp4 \
     -d MYRIAD
-```
 
-### Run gaze_estimation_demo
 
-```
+# --- Run gaze_estimation_demo
 # https://docs.openvinotoolkit.org/latest/omz_demos_gaze_estimation_demo_cpp.html
 cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
 python3 downloader.py --name gaze-estimation-adas-0002 --output_dir /opt/intel/openvino_2021.3.394/ws/models
@@ -97,11 +110,8 @@ cd /root/omz_demos_build/intel64/Release
     -d_es MYRIAD
 
 # Try to press g,b,o,l,e,a,c,n,f,esc
-```
 
-### Security Barrier Camera C++ Demo
-
-```
+## --- Security Barrier Camera C++ Demo
 # https://docs.openvinotoolkit.org/latest/omz_demos_security_barrier_camera_demo_cpp.html
 cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
 # New models (public not good results)
@@ -141,11 +151,8 @@ cd /root/omz_demos_build/intel64/Release
     -bs 2 \
     -show_stats \
     -d MYRIAD
-```
 
-## Pedestrian Tracker
-
-```
+## -- Pedestrian Tracker
 python3 downloader.py --print_all | grep rei
 cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
 python3 downloader.py --name  person-detection-retail-0013 --output_dir /opt/intel/openvino_2021.3.394/ws/models
@@ -161,3 +168,15 @@ cd /root/omz_demos_build/intel64/Release
     -d_reid CPU
 
 ```
+
+## Commit created image
+
+```
+2674cfec1180 is the container ID
+docker commit -m "openvino-samples-test" 2674cfec1180 visiont3lab/openvino-ubuntu18.04
+docker push visiont3lab/openvino-ubuntu18.04:latest
+```
+## Workbench Docker https://docs.openvinotoolkit.org/latest/workbench_docs_Workbench_DG_Install_from_Docker_Hub.html
+
+
+[Intro intel openvino example](https://towardsdatascience.com/a-quick-intro-to-intels-openvino-toolkit-for-faster-deep-learning-inference-d695c022c1ce)

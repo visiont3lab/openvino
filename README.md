@@ -126,8 +126,13 @@ cd /root/omz_demos_build/intel64/Release
     -d_va MYRIAD \
     -d_lpr MYRIAD
 # -display_resolution 1280x720
+```
 
-## --- Multi channel Human pose estimation (up to 16 camera s inpus) NOTE: UNABLE TO MAKE IT RUN WITH MULTIPLES VIDEO (nc flag not found!)
+##  Multi channel Human pose estimation (up to 16 camera s inpus) 
+
+> NOTE: UNABLE TO MAKE IT RUN WITH MULTIPLES VIDEO (nc flag not found!)
+
+```
 # https://docs.openvinotoolkit.org/latest/omz_demos_multi_channel_human_pose_estimation_demo_cpp.html
 # https://www.youtube.com/watch?v=2G6uSHPFP-Q
 python3 downloader.py --name  human-pose-estimation-0001 --output_dir /opt/intel/openvino_2021.3.394/ws/models

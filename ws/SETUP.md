@@ -166,6 +166,60 @@ cd /root/omz_demos_build/intel64/Release
     -d_det CPU \
     -d_reid CPU
 
+## -- Object detection
+# https://docs.openvinotoolkit.org/latest/omz_models_group_public.html
+
+python3 downloader.py --print_all | grep rei
+cd /opt/intel/openvino_2021.3.394/deployment_tools/tools/model_downloader
+# Download all object detection models
+python3 downloader.py --list /opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/demos/people-remove/python/models.lst
+python3 downloader.py --name  pedestrian-and-vehicle-detector-adas-0001 --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 downloader.py --name  yolo-v3-tiny-tf --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 downloader.py --name  yolo-v3-tf --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 downloader.py --name faceboxes-pytorch --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 downloader.py --name retinaface-resnet50 --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 downloader.py --name faster_rcnn_inception_resnet_v2_atrous_coco --output_dir /opt/intel/openvino_2021.3.394/ws/models
+
+# Convert
+# https://www.youtube.com/watch?v=wmRNqg_7Eo0&list=PLg-UKERBljNzXUIDjeb8oF-KRwp2fTU4i&index=70
+python3 converter.py --name yolo-v3-tiny-tf  --download_dir /opt/intel/openvino_2021.3.394/ws/models  --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 converter.py --name yolo-v3-tf  --download_dir /opt/intel/openvino_2021.3.394/ws/models  --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 converter.py --name ssd512  --download_dir /opt/intel/openvino_2021.3.394/ws/models  --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 converter.py --name faceboxes-pytorch  --download_dir /opt/intel/openvino_2021.3.394/ws/models  --output_dir /opt/intel/openvino_2021.3.394/ws/models
+python3 converter.py --name faster_rcnn_inception_resnet_v2_atrous_coco  --download_dir /opt/intel/openvino_2021.3.394/ws/models  --output_dir /opt/intel/openvino_2021.3.394/ws/models
+
+cd /opt/intel/openvino_2021.3.394/deployment_tools/open_model_zoo/demos/object_detection_demo/python
+-m /opt/intel/openvino_2021.3.394/ws/models/public/yolo-v3-tiny-tf/FP32/yolo-v3-tiny-tf.xml  -at yolo
+-m /opt/intel/openvino_2021.3.394/ws/models/public/yolo-v3-tf/FP32/yolo-v3-tf.xml  -at yolo   --input_size 608 608
+-m /opt/intel/openvino_2021.3.394/ws/models/intel/person-detection-retail-0013/FP32/person-detection-retail-0013.xml -at ssd --input_size 320 544
+
+# Object detection fast
+python3 object_detection_demo.py \
+    -i /opt/intel/openvino_2021.3.394/ws/sample-videos//rome-1920-1080-10fps-short.mp4 \
+    -m /opt/intel/openvino_2021.3.394/ws/models/intel/person-detection-retail-0013/FP32/person-detection-retail-0013.xml -at ssd --input_size 320 544 \
+    -d MYRIAD 
+
+# Object detection ok 
+python3 object_detection_demo.py \
+    -i /opt/intel/openvino_2021.3.394/ws/sample-videos//rome-1920-1080-10fps-short.mp4 \
+    -m /opt/intel/openvino_2021.3.394/ws/models/public/yolo-v3-tf/FP32/yolo-v3-tf.xml  -at yolo   --input_size 608 608  \
+    -d MYRIAD 
+
+# Face detection 2fps faceboxes
+python3 object_detection_demo.py \
+    -i /opt/intel/openvino_2021.3.394/ws/sample-videos/manuel_gaze_estimation_demo_3.mp4 \
+    -m /opt/intel/openvino_2021.3.394/ws/models/public/faceboxes-pytorch/FP32/faceboxes-pytorch.xml -at faceboxes --input_size 1024 1024 \
+    -d MYRIAD 
+
+# Face detection 1fps retinaface-50
+python3 object_detection_demo.py \
+    -i /opt/intel/openvino_2021.3.394/ws/sample-videos/manuel_gaze_estimation_demo_3.mp4 \
+    -m /opt/intel/openvino_2021.3.394/ws/models/public/retinaface-resnet50/FP32/retinaface-resnet50.xml -at retinaface --input_size 640 640 \
+    -d MYRIAD 
+
+# -- DL streamer
+cd /opt/intel/openvino_2021.3.394/data_processing/dl_streamer/samples/gst_launch/face_detection_and_classification
+
 ```
 
 ## Commit created image
